@@ -25,15 +25,16 @@
   .lead { margin: 0 0 20px; color: var(--muted); font-size: 15px; }
   .layout { display: grid; grid-template-columns: minmax(280px, 380px) 1fr; gap: 24px; align-items: start; }
   @media (max-width: 760px) { .layout { grid-template-columns: 1fr; } }
+  .layout > section { min-width: 0; }   /* グリッドの子がチップ列の合計幅で膨らまないように */
   .panel { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; }
-  .field { margin-bottom: 14px; }
+  .field { margin-bottom: 14px; min-width: 0; }
   .field label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
   .field .hint { font-size: 12px; color: var(--muted); font-weight: 400; margin-left: 6px; }
   .field input[type="text"] { width: 100%; font: inherit; font-size: 16px; padding: 10px 12px; border: 1px solid var(--line);
     border-radius: 8px; background: #FFF; color: var(--ink); }
   .field input[type="text"]:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
   .count { font-size: 12px; color: var(--muted); text-align: right; margin-top: 2px; }
-  .chips { display: flex; gap: 8px; overflow-x: auto; padding: 4px 2px 8px; -webkit-overflow-scrolling: touch; }
+  .chips { display: flex; gap: 8px; overflow-x: auto; padding: 4px 2px 8px; -webkit-overflow-scrolling: touch; min-width: 0; max-width: 100%; }
   .chip { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; border: 2px solid var(--line); background: #FFF;
     border-radius: 999px; padding: 6px 12px 6px 6px; font: inherit; font-size: 13px; color: var(--ink); cursor: pointer; white-space: nowrap; }
   .chip[aria-pressed="true"] { border-color: var(--accent); background: #EEF3F8; }
@@ -44,7 +45,7 @@
   .btn { font: inherit; font-size: 15px; font-weight: 700; padding: 12px 16px; border-radius: 8px; border: 1px solid var(--accent);
     background: var(--accent); color: var(--accent-ink); cursor: pointer; }
   .btn.secondary { background: #FFF; color: var(--accent); }
-  .btn.small { font-size: 13px; padding: 8px 12px; font-weight: 600; }
+  .btn.small { font-size: 13px; padding: 8px 12px; font-weight: 600; min-height: 40px; }
   .btn:disabled { opacity: .5; cursor: default; }
   .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0 0 16px; }
   @media (max-width: 420px) { .actions { grid-template-columns: 1fr; } }
