@@ -1,0 +1,142 @@
+[
+ {
+  "id": "cafe-warm",
+  "label": "カフェ・飲食｜あたたかい",
+  "aspect": "1:1",
+  "prompt_file": "assets/prompts/cafe-warm-1x1.txt",
+  "output": "assets/templates/cafe-warm-1x1.png"
+ },
+ {
+  "id": "cafe-warm",
+  "label": "カフェ・飲食｜あたたかい",
+  "aspect": "9:16",
+  "prompt_file": "assets/prompts/cafe-warm-9x16.txt",
+  "output": "assets/templates/cafe-warm-9x16.png"
+ },
+ {
+  "id": "cafe-clean",
+  "label": "カフェ・飲食｜すっきり",
+  "aspect": "1:1",
+  "prompt_file": "assets/prompts/cafe-clean-1x1.txt",
+  "output": "assets/templates/cafe-clean-1x1.png"
+ },
+ {
+  "id": "cafe-clean",
+  "label": "カフェ・飲食｜すっきり",
+  "aspect": "9:16",
+  "prompt_file": "assets/prompts/cafe-clean-9x16.txt",
+  "output": "assets/templates/cafe-clean-9x16.png"
+ },
+ {
+  "id": "salon-soft",
+  "label": "サロン・美容｜やわらかい",
+  "aspect": "1:1",
+  "prompt_file": "assets/prompts/salon-soft-1x1.txt",
+  "output": "assets/templates/salon-soft-1x1.png"
+ },
+ {
+  "id": "salon-soft",
+  "label": "サロン・美容｜やわらかい",
+  "aspect": "9:16",
+  "prompt_file": "assets/prompts/salon-soft-9x16.txt",
+  "output": "assets/templates/salon-soft-9x16.png"
+ },
+ {
+  "id": "salon-elegant",
+  "label": "サロン・美容｜上品",
+  "aspect": "1:1",
+  "prompt_file": "assets/prompts/salon-elegant-1x1.txt",
+  "output": "assets/templates/salon-elegant-1x1.png"
+ },
+ {
+  "id": "salon-elegant",
+  "label": "サロン・美容｜上品",
+  "aspect": "9:16",
+  "prompt_file": "assets/prompts/salon-elegant-9x16.txt",
+  "output": "assets/templates/salon-elegant-9x16.png"
+ },
+ {
+  "id": "seitai-calm",
+  "label": "整体・治療院｜安心",
+  "aspect": "1:1",
+  "prompt_file": "assets/prompts/seitai-calm-1x1.txt",
+  "output": "assets/templates/seitai-calm-1x1.png"
+ },
+ {
+  "id": "seitai-calm",
+  "label": "整体・治療院｜安心",
+  "aspect": "9:16",
+  "prompt_file": "assets/prompts/seitai-calm-9x16.txt",
+  "output": "assets/templates/seitai-calm-9x16.png"
+ },
+ {
+  "id": "seitai-clean",
+  "label": "整体・治療院｜清潔",
+  "aspect": "1:1",
+  "prompt_file": "assets/prompts/seitai-clean-1x1.txt",
+  "output": "assets/templates/seitai-clean-1x1.png"
+ },
+ {
+  "id": "seitai-clean",
+  "label": "整体・治療院｜清潔",
+  "aspect": "9:16",
+  "prompt_file": "assets/prompts/seitai-clean-9x16.txt",
+  "output": "assets/templates/seitai-clean-9x16.png"
+ },
+ {
+  "id": "zakka-fun",
+  "label": "雑貨・ハンドメイド｜楽しい",
+  "aspect": "1:1",
+  "prompt_file": "assets/prompts/zakka-fun-1x1.txt",
+  "output": "assets/templates/zakka-fun-1x1.png"
+ },
+ {
+  "id": "zakka-fun",
+  "label": "雑貨・ハンドメイド｜楽しい",
+  "aspect": "9:16",
+  "prompt_file": "assets/prompts/zakka-fun-9x16.txt",
+  "output": "assets/templates/zakka-fun-9x16.png"
+ },
+ {
+  "id": "zakka-natural",
+  "label": "雑貨・ハンドメイド｜ナチュラル",
+  "aspect": "1:1",
+  "prompt_file": "assets/prompts/zakka-natural-1x1.txt",
+  "output": "assets/templates/zakka-natural-1x1.png"
+ },
+ {
+  "id": "zakka-natural",
+  "label": "雑貨・ハンドメイド｜ナチュラル",
+  "aspect": "9:16",
+  "prompt_file": "assets/prompts/zakka-natural-9x16.txt",
+  "output": "assets/templates/zakka-natural-9x16.png"
+ },
+ {
+  "id": "school-bright",
+  "label": "教室・スクール｜明るい",
+  "aspect": "1:1",
+  "prompt_file": "assets/prompts/school-bright-1x1.txt",
+  "output": "assets/templates/school-bright-1x1.png"
+ },
+ {
+  "id": "school-bright",
+  "label": "教室・スクール｜明るい",
+  "aspect": "9:16",
+  "prompt_file": "assets/prompts/school-bright-9x16.txt",
+  "output": "assets/templates/school-bright-9x16.png"
+ },
+ {
+  "id": "school-calm",
+  "label": "教室・スクール｜落ち着き",
+  "aspect": "1:1",
+  "prompt_file": "assets/prompts/school-calm-1x1.txt",
+  "output": "assets/templates/school-calm-1x1.png"
+ },
+ {
+  "id": "school-calm",
+  "label": "教室・スクール｜落ち着き",
+  "aspect": "9:16",
+  "prompt_file": "assets/prompts/school-calm-9x16.txt",
+  "output": "assets/templates/school-calm-9x16.png"
+ }
+]

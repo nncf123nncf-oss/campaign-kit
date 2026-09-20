@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>キャンペーン告知セット｜店頭A4・Instagram・ストーリーズ・LINEを同じデザインで</title>
+<meta name="description" content="店名とキャンペーン名を入れるだけで、店頭に貼るA4、Instagram投稿、ストーリーズ、LINEリッチメッセージの4種類が同じデザインで一度にできます。ログイン不要、入力内容はブラウザの中だけで扱います。">
+<style>
+  :root {
+    --bg: #F4F3EF;
+    --ink: #22221F;
+    --muted: #5E5C55;
+    --line: #D9D6CE;
+    --card: #FFFFFF;
+    --accent: #1F4E79;
+    --accent-ink: #FFFFFF;
+    --danger: #B3261E;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink);
+    font-family: "Hiragino Sans", "Yu Gothic", "BIZ UDPGothic", "Noto Sans JP", system-ui, sans-serif; line-height: 1.6; }
+  main { max-width: 1120px; margin: 0 auto; padding: 24px 16px 40px; }
+  h1 { font-size: 26px; margin: 0 0 6px; letter-spacing: 0.01em; }
+  .lead { margin: 0 0 20px; color: var(--muted); font-size: 15px; }
+  .layout { display: grid; grid-template-columns: minmax(280px, 380px) 1fr; gap: 24px; align-items: start; }
+  @media (max-width: 760px) { .layout { grid-template-columns: 1fr; } }
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; }
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+  .field .hint { font-size: 12px; color: var(--muted); font-weight: 400; margin-left: 6px; }
+  .field input[type="text"] { width: 100%; font: inherit; font-size: 16px; padding: 10px 12px; border: 1px solid var(--line);
+    border-radius: 8px; background: #FFF; color: var(--ink); }
+  .field input[type="text"]:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .count { font-size: 12px; color: var(--muted); text-align: right; margin-top: 2px; }
+  .chips { display: flex; gap: 8px; overflow-x: auto; padding: 4px 2px 8px; -webkit-overflow-scrolling: touch; }
+  .chip { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; border: 2px solid var(--line); background: #FFF;
+    border-radius: 999px; padding: 6px 12px 6px 6px; font: inherit; font-size: 13px; color: var(--ink); cursor: pointer; white-space: nowrap; }
+  .chip[aria-pressed="true"] { border-color: var(--accent); background: #EEF3F8; }
+  .chip .sw { width: 26px; height: 26px; border-radius: 50%; border: 1px solid rgba(0,0,0,.12); display: inline-block; }
+  .chip .sw i { display: block; width: 100%; height: 100%; border-radius: 50%; }
+  .group-title { font-size: 12px; font-weight: 700; color: var(--muted); margin: 6px 0 2px; }
+  .photo-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .btn { font: inherit; font-size: 15px; font-weight: 700; padding: 12px 16px; border-radius: 8px; border: 1px solid var(--accent);
+    background: var(--accent); color: var(--accent-ink); cursor: pointer; }
+  .btn.secondary { background: #FFF; color: var(--accent); }
+  .btn.small { font-size: 13px; padding: 8px 12px; font-weight: 600; }
+  .btn:disabled { opacity: .5; cursor: default; }
+  .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0 0 16px; }
+  @media (max-width: 420px) { .actions { grid-template-columns: 1fr; } }
+  .previews { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  @media (max-width: 560px) { .previews { grid-template-columns: 1fr; } }
+  figure { margin: 0; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; }
+  figure .fwrap { display: flex; justify-content: center; align-items: center; background: #ECEAE3; border-radius: 6px; padding: 8px; min-height: 120px; }
+  figure canvas { display: block; max-width: 100%; height: auto; box-shadow: 0 2px 10px rgba(0,0,0,.12); background: #fff; }
+  figcaption { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 10px; font-size: 13px; }
+  figcaption .name { font-weight: 700; }
+  figcaption .dim { color: var(--muted); font-size: 12px; display: block; font-weight: 400; }
+  .msg { min-height: 1.4em; font-size: 14px; margin: 0 0 12px; }
+  .msg.error { color: var(--danger); font-weight: 700; }
+  .note { font-size: 12px; color: var(--muted); margin: 12px 0 0; }
+  .note ul { margin: 4px 0 0; padding-left: 18px; }
+  .mw-footer { box-sizing: border-box; width: 100%; max-width: 100%; margin: 24px 0 0; padding: 16px; background: #F7F7F8;
+    border: 1px solid #D8D8DC; border-radius: 6px; color: #3A3A3E; font-family: system-ui, sans-serif; font-size: 12px; line-height: 1.7; }
+  .mw-footer p { margin: 0 0 6px; }
+  .mw-footer p:last-child { margin-bottom: 0; }
+  .mw-footer a { color: #0B5AA6; }
+  #printArea { display: none; }
+  @page { size: A4 portrait; margin: 0; }
+  @media print {
+    html, body { background: #fff; }
+    main { display: none; }
+    #printArea { display: block; }
+    #printArea img { display: block; width: 210mm; height: 297mm; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>キャンペーン告知セット</h1>
+  <p class="lead">店名とキャンペーン名を入れると、店頭に貼るA4・Instagram投稿・ストーリーズ・LINEリッチメッセージの4つが同じデザインで一度にできます。</p>
+
+  <div class="layout">
+    <section class="panel" aria-label="入力">
+      <div class="field">
+        <label for="title">キャンペーン名 <span class="hint">14文字まで</span></label>
+        <input type="text" id="title" maxlength="14" placeholder="例: 秋のさつまいもフェア" autocomplete="off">
+        <div class="count" id="titleCount">0 / 14</div>
+      </div>
+      <div class="field">
+        <label for="store">店名 <span class="hint">16文字まで</span></label>
+        <input type="text" id="store" maxlength="16" placeholder="例: cafe ななつ星" autocomplete="off">
+        <div class="count" id="storeCount">0 / 16</div>
+      </div>
+      <div class="field">
+        <label for="period">期間・日付 <span class="hint">20文字まで・任意</span></label>
+        <input type="text" id="period" maxlength="20" placeholder="例: 10/1（水）〜10/31（金）" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="note">一言 <span class="hint">30文字まで・任意</span></label>
+        <input type="text" id="note" maxlength="30" placeholder="例: ご注文の方にミニ焼き菓子をプレゼント" autocomplete="off">
+        <div class="count" id="noteCount">0 / 30</div>
+      </div>
+
+      <div class="field">
+        <label id="tplLabel">デザイン <span class="hint">業種ごとに2つ</span></label>
+        <div id="chips" class="chips" role="group" aria-labelledby="tplLabel"></div>
+      </div>
+
+      <div class="field">
+        <label for="photo">写真 <span class="hint">任意・1枚。入れると上半分が写真になります</span></label>
+        <div class="photo-row">
+          <input type="file" id="photo" accept="image/png,image/jpeg,image/webp">
+          <button type="button" class="btn secondary small" id="photoClear" hidden>写真を外す</button>
+        </div>
+      </div>
+    </section>
+
+    <section aria-label="できあがり">
+      <div class="actions">
+        <button type="button" class="btn" id="saveAll">3枚まとめて保存（PNG）</button>
+        <button type="button" class="btn secondary" id="printA4">店頭A4を印刷</button>
+      </div>
+      <p class="msg" id="msg" aria-live="polite"></p>
+      <div class="previews" id="previews"></div>
+      <p class="note">
+        寸法の根拠:
+        <ul>
+          <li>Instagram投稿は幅1080px・3:4（Instagramヘルプセンターに記載された対応範囲 1.91:1〜3:4 の上限）</li>
+          <li>ストーリーズは9:16。上14%・下35%・左右6%には文字を置いていません（Meta広告ガイドのストーリーズ画像仕様に合わせた安全域）</li>
+          <li>LINEリッチメッセージは1040×1040ちょうど（LINE公式アカウントマニュアルの正方形テンプレート）</li>
+          <li>iPhoneで保存ボタンが効かないときは、開いた画像を長押しして保存してください</li>
+        </ul>
+      </p>
+    </section>
+  </div>
+
+  <footer class="mw-footer">
+    <p>みちAIワークス（MICHI AI WORKS）／代表 田中　泉</p>
+    <p>運営: <a href="https://michi-portfolio.vercel.app/" rel="noopener">みちAIワークス 公式サイト</a>（https://michi-portfolio.vercel.app/ ）／ お問い合わせ: <a href="mailto:nncf123nncf@gmail.com">nncf123nncf@gmail.com</a></p>
+    <p>入力した文字や写真は、このブラウザの中だけで画像にします。送信・保存・収集は行いません。ページの閲覧数のみアクセス解析（Cloudflare Web Analytics）で計測しています。</p>
+    <p>ログイン・会員登録・パスワードの入力を求めることはありません。</p>
+  </footer>
+</main>
+
+<div id="printArea" aria-hidden="true"><img id="printImg" alt=""></div>
+
+<script>
+(function () {
+  'use strict';
+
+  // ---------- 形式（用途が違うものだけ） ----------
+  var FORMATS = [
+    { key: 'a4',    name: '店頭A4',           dim: '210×297mm（印刷）', w: 2480, h: 3508, safe: { t: 236, b: 236, l: 177, r: 177 }, bg: '9x16', file: 'tentou-A4' },
+    { key: 'feed',  name: 'Instagram投稿',    dim: '1080×1440（3:4）',   w: 1080, h: 1440, safe: { t: 72,  b: 72,  l: 72,  r: 72  }, bg: '9x16', file: 'instagram-1080x1440' },
+    { key: 'story', name: 'ストーリーズ',      dim: '1080×1920（9:16）',  w: 1080, h: 1920, safe: { t: 269, b: 672, l: 65,  r: 65  }, bg: '9x16', file: 'stories-1080x1920' },
+    { key: 'line',  name: 'LINEリッチメッセージ', dim: '1040×1040',      w: 1040, h: 1040, safe: { t: 64,  b: 64,  l: 64,  r: 64  }, bg: '1x1',  file: 'line-1040x1040' }
+  ];
+
+  // ---------- テンプレ（配色は design-spec の値。背景画像は assets/templates/） ----------
+  var TEMPLATES = [
+    { id: 'cafe-warm',     group: 'カフェ・飲食',      name: 'あたたかい', bg: '#E8D9BF', panel: '#FFFDF8', heading: '#4A2E19', body: '#6B4B33', accent: '#8C4A22', style: 'card' },
+    { id: 'cafe-clean',    group: 'カフェ・飲食',      name: 'すっきり',   bg: '#F7F7F4', panel: '#FFFFFF', heading: '#0F4C3A', body: '#33554A', accent: '#0F4C3A', style: 'band' },
+    { id: 'salon-soft',    group: 'サロン・美容',      name: 'やわらかい', bg: '#F2D9D9', panel: '#FFF7F7', heading: '#6E3B4B', body: '#7A5C63', accent: '#A85A70', style: 'card' },
+    { id: 'salon-elegant', group: 'サロン・美容',      name: '上品',       bg: '#1B1B1B', panel: '#F6F1E6', heading: '#1B1B1B', body: '#4A4A4A', accent: '#8A6A1E', style: 'card' },
+    { id: 'seitai-calm',   group: '整体・治療院',      name: '安心',       bg: '#F1EBDD', panel: '#FFFFFF', heading: '#1F3A5F', body: '#40526B', accent: '#1F3A5F', style: 'card' },
+    { id: 'seitai-clean',  group: '整体・治療院',      name: '清潔',       bg: '#FFFFFF', panel: '#EEF6FB', heading: '#1F5F8B', body: '#3E6B84', accent: '#1F5F8B', style: 'band' },
+    { id: 'zakka-fun',     group: '雑貨・ハンドメイド', name: '楽しい',     bg: '#E9B949', panel: '#FFF9EE', heading: '#7A3E1F', body: '#6B4A2E', accent: '#B4552B', style: 'card' },
+    { id: 'zakka-natural', group: '雑貨・ハンドメイド', name: 'ナチュラル', bg: '#EDE6DA', panel: '#FBF9F5', heading: '#4B4239', body: '#6B6259', accent: '#6F6052', style: 'card' },
+    { id: 'school-bright', group: '教室・スクール',    name: '明るい',     bg: '#D8ECF8', panel: '#FFFFFF', heading: '#1F4E79', body: '#3A5E80', accent: '#1F4E79', style: 'card' },
+    { id: 'school-calm',   group: '教室・スクール',    name: '落ち着き',   bg: '#213555', panel: '#FFFFFF', heading: '#213555', body: '#4A5A73', accent: '#213555', style: 'band' }
+  ];
+
+  var FONT = '"Hiragino Sans", "Yu Gothic", "BIZ UDPGothic", "Noto Sans JP", system-ui, sans-serif';
+
+  // ---------- 状態 ----------
+  var state = { title: '', store: '', period: '', note: '', tpl: TEMPLATES[0], photo: null };
+  var bgCache = {};      // key: id-bg -> Image | 'error' | 'loading'
+  var previewCanvases = {};
+  var renderTimer = null;
+  var photoToken = 0;
+
+  var $ = function (id) { return document.getElementById(id); };
+  var msgEl = $('msg');
+  function say(text, isError) { msgEl.textContent = text || ''; msgEl.className = 'msg' + (isError ? ' error' : ''); }
+
+  // ---------- 背景画像 ----------
+  function bgImage(tpl, which) {
+    var key = tpl.id + '-' + which;
+    var c = bgCache[key];
+    if (c && c !== 'loading' && c !== 'error') return c;
+    if (c === 'loading' || c === 'error') return null;
+    bgCache[key] = 'loading';
+    var img = new Image();
+    img.onload = function () { bgCache[key] = img; scheduleRender(); };
+    img.onerror = function () { bgCache[key] = 'error'; };
+    img.src = 'assets/templates/' + key + '.webp';
+    return null;
+  }
+
+  function drawCover(ctx, img, x, y, w, h) {
+    var iw = img.naturalWidth || img.width, ih = img.naturalHeight || img.height;
+    if (!iw || !ih) return;
+    var s = Math.max(w / iw, h / ih);
+    var dw = iw * s, dh = ih * s;
+    ctx.drawImage(img, x + (w - dw) / 2, y + (h - dh) / 2, dw, dh);
+  }
+
+  function roundRect(ctx, x, y, w, h, r) {
+    r = Math.min(r, w / 2, h / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  // ---------- 文字の収縮と折り返し ----------
+  function charType(c) {
+    var code = c.charCodeAt(0);
+    if (code >= 0x3040 && code <= 0x309F) return 'hira';
+    if (code >= 0x30A0 && code <= 0x30FF) return 'kata';
+    if (code >= 0x4E00 && code <= 0x9FFF) return 'kanji';
+    if (/[0-9０-９]/.test(c)) return 'digit';
+    if (/[A-Za-zＡ-Ｚａ-ｚ]/.test(c)) return 'latin';
+    return 'other';
+  }
+
+  function splitBalanced(text) {
+    // 真ん中付近で切る。優先: 区切り文字の直後 > 文字種の変わり目 > 真ん中
+    var n = text.length, mid = Math.ceil(n / 2);
+    var breakChars = ' 　、。・！？!?〜～-ー／/';
+    var best = mid, bestScore = -1;
+    for (var cut = 2; cut <= n - 2; cut++) {
+      var dist = Math.abs(cut - mid);
+      if (dist > 3) continue;
+      var score = 0;
+      if (breakChars.indexOf(text[cut - 1]) >= 0) score = 30;
+      else if (charType(text[cut - 1]) !== charType(text[cut])) score = 15;
+      // 小書き文字・長音の前では切らない
+      if ('ャュョァィゥェォッーゃゅょぁぃぅぇぉっ'.indexOf(text[cut]) >= 0) score = -99;
+      score -= dist * 4;
+      if (score > bestScore) { bestScore = score; best = cut; }
+    }
+    return [text.slice(0, best).replace(/[ 　]+$/, ''), text.slice(best).replace(/^[ 　]+/, '')];
+  }
+
+  function maxSizeFor(ctx, lines, weight, maxPx, minPx, maxWidth) {
+    // 各行が maxWidth に収まる最大サイズ（minPx 未満なら minPx を返し、収まらない）
+    var size = maxPx;
+    var widest = function () {
+      ctx.font = weight + ' ' + size + 'px ' + FONT;
+      var w = 0; for (var i = 0; i < lines.length; i++) w = Math.max(w, ctx.measureText(lines[i]).width);
+      return w;
+    };
+    while (size > minPx && widest() > maxWidth) size -= Math.max(1, Math.round(maxPx * 0.025));
+    if (size < minPx) size = minPx;
+    return { size: size, fits: widest() <= maxWidth };
+  }
+
+  function fitLines(ctx, text, weight, maxPx, minPx, maxWidth, maxLines) {
+    // 1行と2行を比べ、2行にしたほうが文字を大きくできる（1.3倍以上）なら2行にする
+    var one = maxSizeFor(ctx, [text], weight, maxPx, minPx, maxWidth);
+    if (maxLines < 2 || text.length < 4) return { size: one.size, lines: [text], overflow: !one.fits };
+    var two = splitBalanced(text);
+    var twoFit = maxSizeFor(ctx, two, weight, maxPx, minPx, maxWidth);
+    if (one.fits && !(twoFit.fits && twoFit.size >= one.size * 1.3)) return { size: one.size, lines: [text], overflow: false };
+    if (!twoFit.fits) {
+      // 2行でも入らなければ下限の0.8倍まで縮める
+      var floor = Math.round(minPx * 0.8);
+      var size = twoFit.size;
+      var widest = function () { ctx.font = weight + ' ' + size + 'px ' + FONT; return Math.max(ctx.measureText(two[0]).width, ctx.measureText(two[1]).width); };
+      while (widest() > maxWidth && size > floor) size -= 2;
+      return { size: size, lines: two, overflow: widest() > maxWidth };
+    }
+    return { size: twoFit.size, lines: two, overflow: false };
+  }
+
+  // ---------- 描画本体 ----------
+  function render(fmt, tpl, data, canvas, scale) {
+    var W = fmt.w, H = fmt.h;
+    canvas.width = Math.round(W * scale);
+    canvas.height = Math.round(H * scale);
+    var ctx = canvas.getContext('2d');
+    ctx.setTransform(scale, 0, 0, scale, 0, 0);
+
+    // 背景
+    ctx.fillStyle = tpl.bg;
+    ctx.fillRect(0, 0, W, H);
+    var img = bgImage(tpl, fmt.bg);
+    // 生成画像の縁（紙の影など）が出ないよう、少し拡大して切り抜く
+    if (img) drawCover(ctx, img, -W * 0.035, -H * 0.035, W * 1.07, H * 1.07);
+
+    var S = Math.min(W, H);
+    var box = { x: fmt.safe.l, y: fmt.safe.t, w: W - fmt.safe.l - fmt.safe.r, h: H - fmt.safe.t - fmt.safe.b };
+    var pad = Math.round(S * 0.055);
+    var gap = Math.round(S * 0.03);
+    var radius = Math.round(S * 0.03);
+
+    // パネル幅
+    var isBand = tpl.style === 'band';
+    var panelW = isBand ? W : Math.round(box.w * (fmt.key === 'a4' ? 0.9 : 0.96));
+    var innerW = (isBand ? box.w : panelW) - pad * 2;
+
+    // 写真ゾーン
+    var photoH = 0;
+    if (data.photo) photoH = Math.round(box.h * (fmt.key === 'story' ? 0.5 : 0.46));
+
+    // 文字の寸法を先に決める
+    var title = data.title || 'キャンペーン名';
+    var tFit = fitLines(ctx, title, '800', Math.round(S * 0.135), Math.round(S * 0.066), innerW, 2);
+    var titleLineH = Math.round(tFit.size * 1.22);
+    var periodSize = Math.round(S * 0.046);
+    var noteSize = Math.round(S * 0.048);
+    var storeSize = Math.round(S * 0.042);
+    var nFit = data.note ? fitLines(ctx, data.note, '500', noteSize, Math.round(S * 0.036), innerW, 2) : null;
+
+    var contentH = pad;
+    contentH += tFit.lines.length * titleLineH;
+    if (data.period) contentH += gap + Math.round(periodSize * 1.9);
+    if (nFit) contentH += gap + nFit.lines.length * Math.round(nFit.size * 1.5);
+    contentH += gap * 1.4 + Math.round(storeSize * 1.4);   // 罫線＋店名
+    contentH += pad;
+    var panelH = Math.round(contentH);
+
+    // 配置
+    var avail = box.h - (photoH ? photoH + gap : 0);
+    if (panelH > avail) panelH = avail;
+    var panelY = photoH ? box.y + photoH + gap : box.y + Math.round((box.h - panelH) / 2);
+    if (fmt.key === 'story' && !photoH) panelY = box.y + Math.round((box.h - panelH) * 0.5);
+    var panelX = isBand ? 0 : box.x + Math.round((box.w - panelW) / 2);
+
+    // 写真
+    if (data.photo) {
+      ctx.save();
+      var px = isBand ? box.x : panelX, pw = isBand ? box.w : panelW;
+      roundRect(ctx, px, box.y, pw, photoH, radius);
+      ctx.clip();
+      drawCover(ctx, data.photo, px, box.y, pw, photoH);
+      ctx.restore();
+    }
+
+    // パネル
+    ctx.save();
+    if (!isBand) {
+      ctx.shadowColor = 'rgba(0,0,0,0.18)';
+      ctx.shadowBlur = Math.round(S * 0.03);
+      ctx.shadowOffsetY = Math.round(S * 0.008);
+    }
+    ctx.fillStyle = tpl.panel;
+    roundRect(ctx, panelX, panelY, panelW, panelH, isBand ? 0 : radius);
+    ctx.fill();
+    ctx.restore();
+    if (isBand) {
+      // 帯の上下にアクセント線
+      ctx.fillStyle = tpl.accent;
+      ctx.fillRect(0, panelY, W, Math.max(4, Math.round(S * 0.006)));
+      ctx.fillRect(0, panelY + panelH - Math.max(4, Math.round(S * 0.006)), W, Math.max(4, Math.round(S * 0.006)));
+    } else {
+      // カードの内側に細い飾り罫
+      var inset = Math.round(pad * 0.42);
+      ctx.save();
+      ctx.strokeStyle = tpl.accent;
+      ctx.globalAlpha = 0.55;
+      ctx.lineWidth = Math.max(1.5, Math.round(S * 0.0022));
+      roundRect(ctx, panelX + inset, panelY + inset, panelW - inset * 2, panelH - inset * 2, Math.max(2, radius - inset));
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // 文字
+    var cx = W / 2;
+    var y = panelY + pad;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.fillStyle = data.title ? tpl.heading : 'rgba(0,0,0,0.28)';
+    ctx.font = '800 ' + tFit.size + 'px ' + FONT;
+    for (var i = 0; i < tFit.lines.length; i++) { ctx.fillText(tFit.lines[i], cx, y); y += titleLineH; }
+
+    if (data.period) {
+      y += gap;
+      ctx.font = '700 ' + periodSize + 'px ' + FONT;
+      var pw2 = ctx.measureText(data.period).width + periodSize * 1.6;
+      var ph = Math.round(periodSize * 1.9);
+      ctx.fillStyle = tpl.accent;
+      roundRect(ctx, cx - pw2 / 2, y, pw2, ph, ph / 2);
+      ctx.fill();
+      ctx.fillStyle = '#FFFFFF';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(data.period, cx, y + ph / 2 + 1);
+      ctx.textBaseline = 'top';
+      y += ph;
+    }
+
+    if (nFit) {
+      y += gap;
+      ctx.fillStyle = tpl.body;
+      ctx.font = '500 ' + nFit.size + 'px ' + FONT;
+      var lh = Math.round(nFit.size * 1.5);
+      for (var j = 0; j < nFit.lines.length; j++) { ctx.fillText(nFit.lines[j], cx, y); y += lh; }
+    }
+
+    // 罫線＋店名（パネル下端に寄せる）
+    var storeY = panelY + panelH - pad - Math.round(storeSize * 1.4);
+    if (storeY < y + gap) storeY = y + gap;
+    ctx.fillStyle = tpl.accent;
+    ctx.fillRect(cx - S * 0.06, storeY - Math.round(gap * 0.6), S * 0.12, Math.max(2, Math.round(S * 0.003)));
+    ctx.fillStyle = data.store ? tpl.heading : 'rgba(0,0,0,0.28)';
+    ctx.font = '700 ' + storeSize + 'px ' + FONT;
+    try { ctx.letterSpacing = Math.round(storeSize * 0.08) + 'px'; } catch (e) {}
+    ctx.fillText(data.store || '店名', cx, storeY);
+    try { ctx.letterSpacing = '0px'; } catch (e) {}
+
+    return { overflow: !!(tFit.overflow || (nFit && nFit.overflow)) };
+  }
+
+  // ---------- プレビュー ----------
+  function buildPreviews() {
+    var host = $('previews');
+    FORMATS.forEach(function (fmt) {
+      var fig = document.createElement('figure');
+      var wrap = document.createElement('div'); wrap.className = 'fwrap';
+      var c = document.createElement('canvas');
+      c.setAttribute('role', 'img');
+      c.setAttribute('aria-label', fmt.name + 'のプレビュー');
+      wrap.appendChild(c);
+      var cap = document.createElement('figcaption');
+      var nm = document.createElement('span'); nm.className = 'name'; nm.textContent = fmt.name;
+      var dm = document.createElement('span'); dm.className = 'dim'; dm.textContent = fmt.dim; nm.appendChild(dm);
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'btn secondary small';
+      b.textContent = fmt.key === 'a4' ? '印刷' : '保存';
+      b.addEventListener('click', function () { fmt.key === 'a4' ? printA4() : saveOne(fmt); });
+      cap.appendChild(nm); cap.appendChild(b);
+      fig.appendChild(wrap); fig.appendChild(cap);
+      host.appendChild(fig);
+      previewCanvases[fmt.key] = c;
+    });
+  }
+
+  function renderPreviews() {
+    var overflow = false;
+    FORMATS.forEach(function (fmt) {
+      var c = previewCanvases[fmt.key];
+      var cssW = Math.min(c.parentNode.clientWidth - 16 || 320, fmt.key === 'story' ? 230 : 320);
+      if (fmt.key === 'a4') cssW = Math.min(cssW, 300);
+      var dpr = Math.min(window.devicePixelRatio || 1, 2);
+      var scale = (cssW * dpr) / fmt.w;
+      var r = render(fmt, state.tpl, state, c, scale);
+      c.style.width = cssW + 'px';
+      overflow = overflow || r.overflow;
+    });
+    if (overflow) say('文字が長いため一部が入りきりません。キャンペーン名か一言を短くしてください。', true);
+    else if (msgEl.classList.contains('error')) say('');
+  }
+
+  function scheduleRender() {
+    clearTimeout(renderTimer);
+    renderTimer = setTimeout(renderPreviews, 120);
+  }
+
+  // ---------- 保存・印刷 ----------
+  function renderFull(fmt) {
+    var c = document.createElement('canvas');
+    render(fmt, state.tpl, state, c, 1);
+    return c;
+  }
+
+  function fileBase() {
+    var t = (state.title || 'campaign').replace(/[\\/:*?"<>|\s]+/g, '-');
+    return t;
+  }
+
+  function download(blob, name) {
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    var canDownload = ('download' in a);
+    if (canDownload) {
+      a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+    } else {
+      window.open(url, '_blank');
+      say('画像を開きました。長押しして保存してください。');
+    }
+  }
+
+  function saveOne(fmt) {
+    if (!state.title) { say('キャンペーン名を入れてください。', true); $('title').focus(); return; }
+    var c = renderFull(fmt);
+    c.toBlob(function (blob) {
+      if (!blob) { say('画像を作れませんでした。ページを再読み込みしてお試しください。', true); return; }
+      download(blob, fileBase() + '_' + fmt.file + '.png');
+      say(fmt.name + 'を保存しました。');
+    }, 'image/png');
+  }
+
+  function saveAll() {
+    if (!state.title) { say('キャンペーン名を入れてください。', true); $('title').focus(); return; }
+    var list = FORMATS.filter(function (f) { return f.key !== 'a4'; });
+    var i = 0;
+    say('3枚を順に保存します。複数ファイルの許可を求められたら「許可」を選んでください。');
+    (function next() {
+      if (i >= list.length) { say('3枚（Instagram投稿・ストーリーズ・LINE）を保存しました。A4は「店頭A4を印刷」から出せます。'); return; }
+      var fmt = list[i++];
+      var c = renderFull(fmt);
+      c.toBlob(function (blob) {
+        if (blob) download(blob, fileBase() + '_' + fmt.file + '.png');
+        setTimeout(next, 600);
+      }, 'image/png');
+    })();
+  }
+
+  function printA4() {
+    if (!state.title) { say('キャンペーン名を入れてください。', true); $('title').focus(); return; }
+    var fmt = FORMATS[0];
+    var c = renderFull(fmt);
+    var img = $('printImg');
+    img.onload = function () { img.onload = null; setTimeout(function () { window.print(); }, 50); };
+    img.src = c.toDataURL('image/png');
+    say('印刷画面を開きます。用紙はA4・余白は「なし」を選ぶとそのまま出ます。');
+  }
+
+  // ---------- 入力 ----------
+  function bindText(id, key, countId, max) {
+    var el = $(id);
+    var upd = function () {
+      state[key] = el.value.trim();
+      if (countId) $(countId).textContent = el.value.length + ' / ' + max;
+      scheduleRender();
+    };
+    el.addEventListener('input', upd);
+    upd();
+  }
+
+  function buildChips() {
+    var host = $('chips');
+    TEMPLATES.forEach(function (tpl, idx) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'chip';
+      b.setAttribute('aria-pressed', idx === 0 ? 'true' : 'false');
+      b.innerHTML = '<span class="sw"><i></i></span><span></span>';
+      b.querySelector('.sw i').style.background = 'linear-gradient(135deg, ' + tpl.bg + ' 50%, ' + tpl.panel + ' 50%)';
+      b.querySelector('span:last-child').textContent = tpl.group + ' / ' + tpl.name;
+      b.addEventListener('click', function () {
+        state.tpl = tpl;
+        Array.prototype.forEach.call(host.children, function (ch) { ch.setAttribute('aria-pressed', ch === b ? 'true' : 'false'); });
+        bgImage(tpl, '1x1'); bgImage(tpl, '9x16');
+        scheduleRender();
+      });
+      host.appendChild(b);
+    });
+  }
+
+  function bindPhoto() {
+    var input = $('photo'), clear = $('photoClear');
+    input.addEventListener('change', function () {
+      var f = input.files && input.files[0];
+      if (!f) return;
+      if (f.size > 8 * 1024 * 1024) { say('写真は8MB以下にしてください。', true); input.value = ''; return; }
+      var token = ++photoToken;
+      var reader = new FileReader();
+      reader.onload = function () {
+        var img = new Image();
+        img.onload = function () {
+          if (token !== photoToken) return;
+          if (!img.naturalWidth || !img.naturalHeight) { say('この画像は使えません。JPEGかPNGの写真を選んでください。', true); return; }
+          state.photo = img; clear.hidden = false; say('写真を入れました。'); scheduleRender();
+        };
+        img.onerror = function () { if (token === photoToken) say('写真を読み込めませんでした。', true); };
+        img.src = reader.result;
+      };
+      reader.onerror = function () { say('写真を読み込めませんでした。', true); };
+      reader.readAsDataURL(f);
+    });
+    clear.addEventListener('click', function () {
+      photoToken++; state.photo = null; input.value = ''; clear.hidden = true; say('写真を外しました。'); scheduleRender();
+    });
+  }
+
+  // ---------- 起動 ----------
+  buildChips();
+  buildPreviews();
+  bindText('title', 'title', 'titleCount', 14);
+  bindText('store', 'store', 'storeCount', 16);
+  bindText('period', 'period', null, 20);
+  bindText('note', 'note', 'noteCount', 30);
+  bindPhoto();
+  $('saveAll').addEventListener('click', saveAll);
+  $('printA4').addEventListener('click', printA4);
+  bgImage(state.tpl, '1x1'); bgImage(state.tpl, '9x16');
+  window.addEventListener('resize', scheduleRender);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(scheduleRender);
+  renderPreviews();
+
+  // 検証用フック（寸法チェック・印刷テストの自動化に使う。UIには出ない）
+  window.__campaignKit = {
+    formats: FORMATS,
+    templates: TEMPLATES,
+    renderFull: renderFull,
+    setTemplate: function (id) {
+      var t = TEMPLATES.filter(function (x) { return x.id === id; })[0];
+      if (!t) return;
+      state.tpl = t; bgImage(t, '1x1'); bgImage(t, '9x16');
+      Array.prototype.forEach.call($('chips').children, function (ch, i) { ch.setAttribute('aria-pressed', TEMPLATES[i] === t ? 'true' : 'false'); });
+      scheduleRender();
+    },
+    setPhoto: function (img) { state.photo = img || null; scheduleRender(); },
+    bgReady: function (id) { var t = TEMPLATES.filter(function (x) { return x.id === id; })[0] || state.tpl; return !!(bgImage(t, '1x1') && bgImage(t, '9x16')); }
+  };
+})();
+</script>
+<!-- Cloudflare Web Analytics（ページの閲覧数のみ。入力内容は送信しません） --><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "b4c9f7e78daf4edb84ef52b88633f649"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>
