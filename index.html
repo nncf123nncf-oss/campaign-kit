@@ -233,16 +233,20 @@
     // 真ん中付近で切る。優先: 区切り文字の直後 > 文字種の変わり目 > 真ん中
     var n = text.length, mid = Math.ceil(n / 2);
     var breakChars = ' 　、。・！？!?〜～-ー／/';
-    var best = mid, bestScore = -1;
+    var window = Math.max(3, Math.round(n / 5));
+    var best = mid, bestScore = -999;
     for (var cut = 2; cut <= n - 2; cut++) {
       var dist = Math.abs(cut - mid);
-      if (dist > 3) continue;
+      if (dist > window) continue;
+      var prev = charType(text[cut - 1]), next = charType(text[cut]);
       var score = 0;
-      if (breakChars.indexOf(text[cut - 1]) >= 0) score = 30;
-      else if (charType(text[cut - 1]) !== charType(text[cut])) score = 15;
-      // 小書き文字・長音の前では切らない
-      if ('ャュョァィゥェォッーゃゅょぁぃぅぇぉっ'.indexOf(text[cut]) >= 0) score = -99;
-      score -= dist * 4;
+      if (breakChars.indexOf(text[cut - 1]) >= 0) score = 30;           // 区切り文字の直後
+      else if (prev === 'hira' && next !== 'hira' && 'のにをはがでとへも'.indexOf(text[cut - 1]) >= 0) score = 22; // 助詞の直後（文節の切れ目）
+      else if (prev === 'kanji' && next === 'hira') score = 8;           // 送り仮名の途中かもしれないので低め
+      else if (prev !== next) score = 12;                                // その他の文字種の変わり目
+      // 小書き文字・長音・句読点の前では切らない
+      if ('ャュョァィゥェォッーゃゅょぁぃぅぇぉっ、。」）)'.indexOf(text[cut]) >= 0) score = -99;
+      score -= dist * 3;
       if (score > bestScore) { bestScore = score; best = cut; }
     }
     return [text.slice(0, best).replace(/[ 　]+$/, ''), text.slice(best).replace(/^[ 　]+/, '')];
@@ -261,13 +265,15 @@
     return { size: size, fits: widest() <= maxWidth };
   }
 
-  function fitLines(ctx, text, weight, maxPx, minPx, maxWidth, maxLines) {
-    // 1行と2行を比べ、2行にしたほうが文字を大きくできる（1.3倍以上）なら2行にする
+  function fitLines(ctx, text, weight, maxPx, minPx, maxWidth, maxLines, twoLineGain) {
+    // 1行と2行を比べ、2行にしたほうが文字を大きくできる（twoLineGain 倍以上）なら2行にする。
+    // 見出しは1.3、一言は「1行に入るなら1行」（gain=Infinity）
+    var gain = twoLineGain || 1.3;
     var one = maxSizeFor(ctx, [text], weight, maxPx, minPx, maxWidth);
     if (maxLines < 2 || text.length < 4) return { size: one.size, lines: [text], overflow: !one.fits };
     var two = splitBalanced(text);
     var twoFit = maxSizeFor(ctx, two, weight, maxPx, minPx, maxWidth);
-    if (one.fits && !(twoFit.fits && twoFit.size >= one.size * 1.3)) return { size: one.size, lines: [text], overflow: false };
+    if (one.fits && !(twoFit.fits && twoFit.size >= one.size * gain)) return { size: one.size, lines: [text], overflow: false };
     if (!twoFit.fits) {
       // 2行でも入らなければ下限の0.8倍まで縮める
       var floor = Math.round(minPx * 0.8);
@@ -316,7 +322,7 @@
     var periodSize = Math.round(S * 0.046);
     var noteSize = Math.round(S * 0.048);
     var storeSize = Math.round(S * 0.042);
-    var nFit = data.note ? fitLines(ctx, data.note, '500', noteSize, Math.round(S * 0.036), innerW, 2) : null;
+    var nFit = data.note ? fitLines(ctx, data.note, '500', noteSize, Math.round(S * 0.036), innerW, 2, Infinity) : null;
 
     var contentH = pad;
     contentH += tFit.lines.length * titleLineH;
