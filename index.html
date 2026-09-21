@@ -84,23 +84,23 @@
   <div class="layout">
     <section class="panel" aria-label="入力">
       <div class="field">
-        <label for="title">キャンペーン名 <span class="hint">14文字まで</span></label>
-        <input type="text" id="title" maxlength="14" placeholder="例: 秋のさつまいもフェア" autocomplete="off">
-        <div class="count" id="titleCount">0 / 14</div>
+        <label for="title">キャンペーン名 <span class="hint">全角14文字まで（半角なら28文字）</span></label>
+        <input type="text" id="title" placeholder="例: 秋のさつまいもフェア" autocomplete="off">
+        <div class="count" id="titleCount">全角換算 0 / 14</div>
       </div>
       <div class="field">
-        <label for="store">店名 <span class="hint">16文字まで</span></label>
-        <input type="text" id="store" maxlength="16" placeholder="例: cafe ななつ星" autocomplete="off">
-        <div class="count" id="storeCount">0 / 16</div>
+        <label for="store">店名 <span class="hint">全角16文字まで（半角なら32文字）</span></label>
+        <input type="text" id="store" placeholder="例: cafe ななつ星" autocomplete="off">
+        <div class="count" id="storeCount">全角換算 0 / 16</div>
       </div>
       <div class="field">
-        <label for="period">期間・日付 <span class="hint">20文字まで・任意</span></label>
-        <input type="text" id="period" maxlength="20" placeholder="例: 10/1（水）〜10/31（金）" autocomplete="off">
+        <label for="period">期間・日付 <span class="hint">全角20文字まで（半角なら40文字）・任意</span></label>
+        <input type="text" id="period" placeholder="例: 10/1（水）〜10/31（金）" autocomplete="off">
       </div>
       <div class="field">
-        <label for="note">一言 <span class="hint">30文字まで・任意</span></label>
-        <input type="text" id="note" maxlength="30" placeholder="例: ご注文の方にミニ焼き菓子をプレゼント" autocomplete="off">
-        <div class="count" id="noteCount">0 / 30</div>
+        <label for="note">一言 <span class="hint">全角30文字まで（半角なら60文字）・任意</span></label>
+        <input type="text" id="note" placeholder="例: ご注文の方にミニ焼き菓子をプレゼント" autocomplete="off">
+        <div class="count" id="noteCount">全角換算 0 / 30</div>
       </div>
 
       <div class="field">
@@ -325,12 +325,19 @@
       // 店名: 字間込みで innerW に収まるサイズ
       storeSize = Math.round(T * 0.042);
       var storeMin = Math.round(T * 0.03);
+      var spacingFactor = 0.08;
       var storeWidth = function () {
         ctx.font = '700 ' + storeSize + 'px ' + FONT;
-        storeSpacing = Math.round(storeSize * 0.08);
+        storeSpacing = Math.round(storeSize * spacingFactor);
         return ctx.measureText(storeText).width + storeSpacing * Math.max(0, Array.from(storeText).length - 1);
       };
       while (storeWidth() > innerW && storeSize > storeMin) storeSize -= 1;
+      if (storeWidth() > innerW) {
+        // 長い店名（半角32字など）は字間を詰め、さらに下限の85%まで縮める
+        spacingFactor = 0;
+        var storeFloor = Math.round(storeMin * 0.85);
+        while (storeWidth() > innerW && storeSize > storeFloor) storeSize -= 1;
+      }
       storeOverflow = storeWidth() > innerW;
 
       // 期間: 丸枠込みで innerW に収まるサイズ
@@ -572,11 +579,34 @@
   }
 
   // ---------- 入力 ----------
+  // 文字幅の単位: 全角（漢字・かな・全角記号・絵文字）=2、半角（英数字・半角記号・半角カナ）=1
+  function charUnits(c) {
+    var code = c.codePointAt(0);
+    if (code < 0x2E80) return (code >= 0x1100 && code <= 0x115F) ? 2 : 1;       // ASCII・ラテン・記号
+    if (code >= 0xFF61 && code <= 0xFF9F) return 1;                              // 半角カナ
+    if (code >= 0xFFE8 && code <= 0xFFEE) return 1;
+    return 2;                                                                    // CJK・かな・全角記号・絵文字
+  }
+  function textUnits(s) { var n = 0; Array.from(s).forEach(function (c) { n += charUnits(c); }); return n; }
+  function trimToUnits(s, maxUnits) {
+    var out = '', n = 0;
+    var cps = Array.from(s);
+    for (var i = 0; i < cps.length; i++) { var u = charUnits(cps[i]); if (n + u > maxUnits) break; out += cps[i]; n += u; }
+    return out;
+  }
+
+  // 上限は「全角 max 文字」相当（= max*2 単位）。半角は1単位なので倍の文字数まで入る
   function bindText(id, key, countId, max) {
     var el = $(id);
     var upd = function () {
+      var limit = max * 2;
+      if (textUnits(el.value) > limit) {
+        var pos = el.selectionStart;
+        el.value = trimToUnits(el.value, limit);
+        try { el.setSelectionRange(Math.min(pos, el.value.length), Math.min(pos, el.value.length)); } catch (e) {}
+      }
       state[key] = el.value.trim();
-      if (countId) $(countId).textContent = Array.from(el.value).length + ' / ' + max;
+      if (countId) $(countId).textContent = '全角換算 ' + (Math.round(textUnits(el.value) / 2 * 10) / 10) + ' / ' + max;
       scheduleRender();
     };
     el.addEventListener('input', upd);
@@ -657,6 +687,7 @@
     formats: FORMATS,
     templates: TEMPLATES,
     renderFull: renderFull,
+    overflowOf: function (fmt) { var c = document.createElement('canvas'); return render(fmt, state.tpl, state, c, 0.25).overflow; },
     setTemplate: function (id) {
       var t = TEMPLATES.filter(function (x) { return x.id === id; })[0];
       if (!t) return;
