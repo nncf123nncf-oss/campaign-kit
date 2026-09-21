@@ -27,7 +27,7 @@ Instagram用の正方形とX用の横長は、上の形式と用途が重なる�
 - HTML / CSS / JavaScript（1ファイル）＋ `assets/templates/` の背景画像（WebP・20枚）
 - 描画はCanvas。保存はPNG、A4は `@media print` でブラウザの印刷ダイアログから出力
 - 入力した文字・写真はブラウザの中だけで扱い、送信・保存しません
-- ページの閲覧数のみ Cloudflare Web Analytics で計測しています（入力内容は送りません）
+- ページの閲覧に関する情報（閲覧数など）を Cloudflare Web Analytics で計測しています（入力内容は送りません）
 - 背景画像は制作時に画像生成AI（fal.ai / nano-banana-2）で作成し、同梱しています。生成に使ったプロンプトは `assets/prompts/` にあります。実行時にAIは使いません
 
 ## 作らないもの
