@@ -124,7 +124,7 @@
       </div>
       <p class="msg" id="msg" aria-live="polite"></p>
       <div class="previews" id="previews"></div>
-      <p class="note">
+      <div class="note">
         寸法の根拠:
         <ul>
           <li>Instagram投稿は幅1080px・3:4（Instagramヘルプセンターに記載された対応範囲 1.91:1〜3:4 の上限）</li>
@@ -132,7 +132,7 @@
           <li>LINEリッチメッセージは1040×1040ちょうど（LINE公式アカウントマニュアルの正方形テンプレート）</li>
           <li>iPhoneで保存ボタンが効かないときは、開いた画像を長押しして保存してください</li>
         </ul>
-      </p>
+      </div>
     </section>
   </div>
 
@@ -152,7 +152,7 @@
 
   // ---------- 形式（用途が違うものだけ） ----------
   var FORMATS = [
-    { key: 'a4',    name: '店頭A4',           dim: '210×297mm（印刷）', w: 2480, h: 3508, safe: { t: 236, b: 236, l: 177, r: 177 }, bg: '9x16', file: 'tentou-A4' },
+    { key: 'a4',    name: '店頭A4',           dim: '210×297mm（印刷）', w: 2480, h: 3508, safe: { t: 236, b: 236, l: 177, r: 177 }, bg: '9x16', file: 'tentou-A4', scaleUp: 1.2 },
     { key: 'feed',  name: 'Instagram投稿',    dim: '1080×1440（3:4）',   w: 1080, h: 1440, safe: { t: 72,  b: 72,  l: 72,  r: 72  }, bg: '9x16', file: 'instagram-1080x1440' },
     { key: 'story', name: 'ストーリーズ',      dim: '1080×1920（9:16）',  w: 1080, h: 1920, safe: { t: 269, b: 672, l: 65,  r: 65  }, bg: '9x16', file: 'stories-1080x1920' },
     { key: 'line',  name: 'LINEリッチメッセージ', dim: '1040×1040',      w: 1040, h: 1040, safe: { t: 64,  b: 64,  l: 64,  r: 64  }, bg: '1x1',  file: 'line-1040x1040' }
@@ -200,7 +200,7 @@
   }
 
   function drawCover(ctx, img, x, y, w, h) {
-    var iw = img.naturalWidth || img.width, ih = img.naturalHeight || img.height;
+    var iw = img.naturalWidth || img.width, ih = img.naturalHeight || img.height;  // Image と canvas の両方に対応
     if (!iw || !ih) return;
     var s = Math.max(w / iw, h / ih);
     var dw = iw * s, dh = ih * s;
@@ -220,7 +220,7 @@
 
   // ---------- 文字の収縮と折り返し ----------
   function charType(c) {
-    var code = c.charCodeAt(0);
+    var code = c.codePointAt(0);
     if (code >= 0x3040 && code <= 0x309F) return 'hira';
     if (code >= 0x30A0 && code <= 0x30FF) return 'kata';
     if (code >= 0x4E00 && code <= 0x9FFF) return 'kanji';
@@ -230,26 +230,27 @@
   }
 
   function splitBalanced(text) {
-    // 真ん中付近で切る。優先: 区切り文字の直後 > 文字種の変わり目 > 真ん中
-    var n = text.length, mid = Math.ceil(n / 2);
+    // 真ん中付近で切る。優先: 区切り文字の直後 > 助詞の直後 > 文字種の変わり目 > 真ん中
+    // 絵文字（サロゲートペア）を分断しないよう、コードポイント単位で扱う
+    var cps = Array.from(text);
+    var n = cps.length, mid = Math.ceil(n / 2);
     var breakChars = ' 　、。・！？!?〜～-ー／/';
     var window = Math.max(3, Math.round(n / 5));
     var best = mid, bestScore = -999;
     for (var cut = 2; cut <= n - 2; cut++) {
       var dist = Math.abs(cut - mid);
       if (dist > window) continue;
-      var prev = charType(text[cut - 1]), next = charType(text[cut]);
+      var prev = charType(cps[cut - 1]), next = charType(cps[cut]);
       var score = 0;
-      if (breakChars.indexOf(text[cut - 1]) >= 0) score = 30;           // 区切り文字の直後
-      else if (prev === 'hira' && next !== 'hira' && 'のにをはがでとへも'.indexOf(text[cut - 1]) >= 0) score = 22; // 助詞の直後（文節の切れ目）
-      else if (prev === 'kanji' && next === 'hira') score = 8;           // 送り仮名の途中かもしれないので低め
-      else if (prev !== next) score = 12;                                // その他の文字種の変わり目
-      // 小書き文字・長音・句読点の前では切らない
-      if ('ャュョァィゥェォッーゃゅょぁぃぅぇぉっ、。」）)'.indexOf(text[cut]) >= 0) score = -99;
+      if (breakChars.indexOf(cps[cut - 1]) >= 0) score = 30;
+      else if (prev === 'hira' && next !== 'hira' && 'のにをはがでとへも'.indexOf(cps[cut - 1]) >= 0) score = 22;
+      else if (prev === 'kanji' && next === 'hira') score = 8;
+      else if (prev !== next) score = 12;
+      if ('ャュョァィゥェォッーゃゅょぁぃぅぇぉっ、。」）)'.indexOf(cps[cut]) >= 0) score = -99;
       score -= dist * 3;
       if (score > bestScore) { bestScore = score; best = cut; }
     }
-    return [text.slice(0, best).replace(/[ 　]+$/, ''), text.slice(best).replace(/^[ 　]+/, '')];
+    return [cps.slice(0, best).join('').replace(/[ 　]+$/, ''), cps.slice(best).join('').replace(/^[ 　]+/, '')];
   }
 
   function maxSizeFor(ctx, lines, weight, maxPx, minPx, maxWidth) {
@@ -270,7 +271,7 @@
     // 見出しは1.3、一言は「1行に入るなら1行」（gain=Infinity）
     var gain = twoLineGain || 1.3;
     var one = maxSizeFor(ctx, [text], weight, maxPx, minPx, maxWidth);
-    if (maxLines < 2 || text.length < 4) return { size: one.size, lines: [text], overflow: !one.fits };
+    if (maxLines < 2 || Array.from(text).length < 4) return { size: one.size, lines: [text], overflow: !one.fits };
     var two = splitBalanced(text);
     var twoFit = maxSizeFor(ctx, two, weight, maxPx, minPx, maxWidth);
     if (one.fits && !(twoFit.fits && twoFit.size >= one.size * gain)) return { size: one.size, lines: [text], overflow: false };
@@ -302,41 +303,68 @@
 
     var S = Math.min(W, H);
     var box = { x: fmt.safe.l, y: fmt.safe.t, w: W - fmt.safe.l - fmt.safe.r, h: H - fmt.safe.t - fmt.safe.b };
-    var pad = Math.round(S * 0.055);
-    var gap = Math.round(S * 0.03);
-    var radius = Math.round(S * 0.03);
-
-    // パネル幅
+    // A4は写真なしのとき文字を大きめにする（掲示物として離れて読めるように）
+    var baseT = S * ((fmt.scaleUp && !data.photo) ? fmt.scaleUp : 1);
     var isBand = tpl.style === 'band';
-    var panelW = isBand ? W : Math.round(box.w * (fmt.key === 'a4' ? 0.9 : 0.96));
-    var innerW = (isBand ? box.w : panelW) - pad * 2;
-
-    // 写真ゾーン
-    var photoH = 0;
-    if (data.photo) photoH = Math.round(box.h * (fmt.key === 'story' ? 0.5 : 0.46));
-
-    // 文字の寸法を先に決める
+    var radius = Math.round(S * 0.03);
     var title = data.title || 'キャンペーン名';
-    var tFit = fitLines(ctx, title, '800', Math.round(S * 0.135), Math.round(S * 0.066), innerW, 2);
-    var titleLineH = Math.round(tFit.size * 1.22);
-    var periodSize = Math.round(S * 0.046);
-    var noteSize = Math.round(S * 0.048);
-    var storeSize = Math.round(S * 0.042);
-    var nFit = data.note ? fitLines(ctx, data.note, '500', noteSize, Math.round(S * 0.036), innerW, 2, Infinity) : null;
+    var storeText = data.store || '店名';
 
-    var contentH = pad;
-    contentH += tFit.lines.length * titleLineH;
-    if (data.period) contentH += gap + Math.round(periodSize * 1.9);
-    if (nFit) contentH += gap + nFit.lines.length * Math.round(nFit.size * 1.5);
-    contentH += gap * 1.4 + Math.round(storeSize * 1.4);   // 罫線＋店名
-    contentH += pad;
-    var panelH = Math.round(contentH);
+    // 高さの調整: 写真あり＋文字が多いとき、①写真を縮める（下限30%） ②見出しを1行に ③全体の文字を段階的に縮める ④それでも入らなければ溢れ扱い
+    var photoFrac = data.photo ? (fmt.key === 'story' ? 0.5 : 0.46) : 0;
+    var scale = 1, titleMaxLines = 2, heightOverflow = false;
+    var T, pad, gap, panelW, innerW, storeSize, storeSpacing, storeOverflow, periodSize, periodOverflow;
+    var photoH, tFit, nFit, titleLineH, contentH, avail;
+    for (var attempt = 0; attempt < 20; attempt++) {
+      T = baseT * scale;
+      pad = Math.round(T * 0.055);
+      gap = Math.round(T * 0.03);
+      panelW = isBand ? W : Math.round(box.w * (fmt.key === 'a4' ? 0.92 : 0.96));
+      innerW = (isBand ? box.w : panelW) - pad * 2;
+
+      // 店名: 字間込みで innerW に収まるサイズ
+      storeSize = Math.round(T * 0.042);
+      var storeMin = Math.round(T * 0.03);
+      var storeWidth = function () {
+        ctx.font = '700 ' + storeSize + 'px ' + FONT;
+        storeSpacing = Math.round(storeSize * 0.08);
+        return ctx.measureText(storeText).width + storeSpacing * Math.max(0, Array.from(storeText).length - 1);
+      };
+      while (storeWidth() > innerW && storeSize > storeMin) storeSize -= 1;
+      storeOverflow = storeWidth() > innerW;
+
+      // 期間: 丸枠込みで innerW に収まるサイズ
+      periodSize = Math.round(T * 0.046); periodOverflow = false;
+      if (data.period) {
+        var periodMin = Math.round(T * 0.032);
+        var pillW = function () { ctx.font = '700 ' + periodSize + 'px ' + FONT; return ctx.measureText(data.period).width + periodSize * 1.6; };
+        while (pillW() > innerW && periodSize > periodMin) periodSize -= 1;
+        periodOverflow = pillW() > innerW;
+      }
+
+      photoH = data.photo ? Math.round(box.h * photoFrac) : 0;
+      tFit = fitLines(ctx, title, '800', Math.round(T * 0.135), Math.round(T * 0.066), innerW, titleMaxLines);
+      titleLineH = Math.round(tFit.size * 1.28);
+      nFit = data.note ? fitLines(ctx, data.note, '500', Math.round(T * 0.048), Math.round(T * 0.036), innerW, 2, Infinity) : null;
+      contentH = pad + tFit.lines.length * titleLineH;
+      if (data.period) contentH += gap + Math.round(periodSize * 1.9);
+      if (nFit) contentH += gap + nFit.lines.length * Math.round(nFit.size * 1.5);
+      contentH += Math.round(gap * 1.1) + Math.round(storeSize * 1.4) + pad;
+      contentH = Math.round(contentH);
+      avail = box.h - (photoH ? photoH + gap : 0);
+      if (contentH <= avail) break;
+      if (data.photo && photoFrac > 0.3) { photoFrac = Math.max(0.3, photoFrac - 0.04); continue; }
+      if (titleMaxLines === 2) {
+        var oneLine = maxSizeFor(ctx, [title], '800', Math.round(T * 0.135), Math.round(T * 0.066), innerW);
+        if (oneLine.fits) { titleMaxLines = 1; continue; }
+      }
+      if (scale > 0.7) { scale = Math.max(0.7, scale - 0.08); continue; }
+      heightOverflow = true; break;
+    }
+    var panelH = Math.min(contentH, avail);
 
     // 配置
-    var avail = box.h - (photoH ? photoH + gap : 0);
-    if (panelH > avail) panelH = avail;
     var panelY = photoH ? box.y + photoH + gap : box.y + Math.round((box.h - panelH) / 2);
-    if (fmt.key === 'story' && !photoH) panelY = box.y + Math.round((box.h - panelH) * 0.5);
     var panelX = isBand ? 0 : box.x + Math.round((box.w - panelW) / 2);
 
     // 写真
@@ -377,7 +405,10 @@
       ctx.restore();
     }
 
-    // 文字
+    // 文字（パネルの外には描かない）
+    ctx.save();
+    roundRect(ctx, panelX, panelY, panelW, panelH, isBand ? 0 : radius);
+    ctx.clip();
     var cx = W / 2;
     var y = panelY + pad;
     ctx.textAlign = 'center';
@@ -409,18 +440,19 @@
       for (var j = 0; j < nFit.lines.length; j++) { ctx.fillText(nFit.lines[j], cx, y); y += lh; }
     }
 
-    // 罫線＋店名（パネル下端に寄せる）
+    // 罫線＋店名（パネル下端に寄せる。パネルの外には出さない）
     var storeY = panelY + panelH - pad - Math.round(storeSize * 1.4);
-    if (storeY < y + gap) storeY = y + gap;
+    if (storeY < y + Math.round(gap * 1.1)) storeY = y + Math.round(gap * 1.1);
     ctx.fillStyle = tpl.accent;
     ctx.fillRect(cx - S * 0.06, storeY - Math.round(gap * 0.6), S * 0.12, Math.max(2, Math.round(S * 0.003)));
     ctx.fillStyle = data.store ? tpl.heading : 'rgba(0,0,0,0.28)';
     ctx.font = '700 ' + storeSize + 'px ' + FONT;
-    try { ctx.letterSpacing = Math.round(storeSize * 0.08) + 'px'; } catch (e) {}
-    ctx.fillText(data.store || '店名', cx, storeY);
+    try { ctx.letterSpacing = storeSpacing + 'px'; } catch (e) {}
+    ctx.fillText(storeText, cx, storeY);
     try { ctx.letterSpacing = '0px'; } catch (e) {}
+    ctx.restore();
 
-    return { overflow: !!(tFit.overflow || (nFit && nFit.overflow)) };
+    return { overflow: !!(tFit.overflow || (nFit && nFit.overflow) || heightOverflow || periodOverflow || storeOverflow) };
   }
 
   // ---------- プレビュー ----------
@@ -450,7 +482,7 @@
     var overflow = false;
     FORMATS.forEach(function (fmt) {
       var c = previewCanvases[fmt.key];
-      var cssW = Math.min(c.parentNode.clientWidth - 16 || 320, fmt.key === 'story' ? 230 : 320);
+      var cssW = Math.min(Math.max(120, c.parentNode.clientWidth - 16), fmt.key === 'story' ? 230 : 320);
       if (fmt.key === 'a4') cssW = Math.min(cssW, 300);
       var dpr = Math.min(window.devicePixelRatio || 1, 2);
       var scale = (cssW * dpr) / fmt.w;
@@ -458,7 +490,8 @@
       c.style.width = cssW + 'px';
       overflow = overflow || r.overflow;
     });
-    if (overflow) say('文字が長いため一部が入りきりません。キャンペーン名か一言を短くしてください。', true);
+    state.overflow = overflow;
+    if (overflow) say('文字が長いため一部が入りきりません。キャンペーン名・期間・一言・店名を短くするか、写真を外してください。', true);
     else if (msgEl.classList.contains('error')) say('');
   }
 
@@ -494,6 +527,8 @@
 
   function saveOne(fmt) {
     if (!state.title) { say('キャンペーン名を入れてください。', true); $('title').focus(); return; }
+    if (!state.store) { say('店名を入れてください。', true); $('store').focus(); return; }
+    if (state.overflow) { say('文字が入りきっていません。短くしてから保存してください。', true); return; }
     var c = renderFull(fmt);
     c.toBlob(function (blob) {
       if (!blob) { say('画像を作れませんでした。ページを再読み込みしてお試しください。', true); return; }
@@ -504,15 +539,21 @@
 
   function saveAll() {
     if (!state.title) { say('キャンペーン名を入れてください。', true); $('title').focus(); return; }
+    if (!state.store) { say('店名を入れてください。', true); $('store').focus(); return; }
+    if (state.overflow) { say('文字が入りきっていません。短くしてから保存してください。', true); return; }
     var list = FORMATS.filter(function (f) { return f.key !== 'a4'; });
-    var i = 0;
+    var i = 0, failed = [];
     say('3枚を順に保存します。複数ファイルの許可を求められたら「許可」を選んでください。');
     (function next() {
-      if (i >= list.length) { say('3枚（Instagram投稿・ストーリーズ・LINE）を保存しました。A4は「店頭A4を印刷」から出せます。'); return; }
+      if (i >= list.length) {
+        if (failed.length) say('保存できなかった形式があります: ' + failed.join('・') + '。個別の「保存」で再度お試しください。', true);
+        else say('3枚（Instagram投稿・ストーリーズ・LINE）を保存しました。A4は「店頭A4を印刷」から出せます。');
+        return;
+      }
       var fmt = list[i++];
       var c = renderFull(fmt);
       c.toBlob(function (blob) {
-        if (blob) download(blob, fileBase() + '_' + fmt.file + '.png');
+        if (blob) download(blob, fileBase() + '_' + fmt.file + '.png'); else failed.push(fmt.name);
         setTimeout(next, 600);
       }, 'image/png');
     })();
@@ -520,6 +561,8 @@
 
   function printA4() {
     if (!state.title) { say('キャンペーン名を入れてください。', true); $('title').focus(); return; }
+    if (!state.store) { say('店名を入れてください。', true); $('store').focus(); return; }
+    if (state.overflow) { say('文字が入りきっていません。短くしてから保存してください。', true); return; }
     var fmt = FORMATS[0];
     var c = renderFull(fmt);
     var img = $('printImg');
@@ -533,7 +576,7 @@
     var el = $(id);
     var upd = function () {
       state[key] = el.value.trim();
-      if (countId) $(countId).textContent = el.value.length + ' / ' + max;
+      if (countId) $(countId).textContent = Array.from(el.value).length + ' / ' + max;
       scheduleRender();
     };
     el.addEventListener('input', upd);
@@ -572,7 +615,16 @@
         img.onload = function () {
           if (token !== photoToken) return;
           if (!img.naturalWidth || !img.naturalHeight) { say('この画像は使えません。JPEGかPNGの写真を選んでください。', true); return; }
-          state.photo = img; clear.hidden = false; say('写真を入れました。'); scheduleRender();
+          // 大きすぎる写真は長辺2500pxに縮めてから使う（スマホでcanvasが失敗しないように）
+          var maxSide = 2500, use = img;
+          if (Math.max(img.naturalWidth, img.naturalHeight) > maxSide) {
+            var s = maxSide / Math.max(img.naturalWidth, img.naturalHeight);
+            var oc = document.createElement('canvas');
+            oc.width = Math.round(img.naturalWidth * s); oc.height = Math.round(img.naturalHeight * s);
+            oc.getContext('2d').drawImage(img, 0, 0, oc.width, oc.height);
+            use = oc;
+          }
+          state.photo = use; clear.hidden = false; say('写真を入れました。'); scheduleRender();
         };
         img.onerror = function () { if (token === photoToken) say('写真を読み込めませんでした。', true); };
         img.src = reader.result;
